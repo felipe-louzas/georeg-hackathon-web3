@@ -1,0 +1,30 @@
+{
+  "name": "georeg-hackathon-web3",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Projeto utilizado no Hackathon Web3 da Secretaria do Patrimônio da União",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felipe-louzas/georeg-hackathon-web3.git"
+  },
+  "keywords": [],
+  "author": "Felipe Louzas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/felipe-louzas/georeg-hackathon-web3/issues"
+  },
+  "homepage": "https://github.com/felipe-louzas/georeg-hackathon-web3#readme",
+  "scripts": {
+    "start:backend": "cd backend && yarn start",
+    "start:frontend": "cd frontend && react-scripts start",
+    "start": "concurrently yarn:start:*"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "create-react-app": "^5.0.1"
+  }
+}
