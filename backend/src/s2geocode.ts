@@ -1,4 +1,5 @@
 import s2 from "@radarlabs/s2";
+import GeoJSON from "geojson";
 import { Request, Response } from "express";
 
 function handlePost(req: Request, res: Response) {
