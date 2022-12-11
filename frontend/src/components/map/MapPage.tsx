@@ -1,6 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
-import Map, { NavigationControl, Source, Layer } from "react-map-gl";
+import Map, {
+  NavigationControl,
+  Source,
+  Layer,
+  MapboxEvent,
+  MapRef,
+} from "react-map-gl";
 
 import {
   DrawCreateEvent,
@@ -19,6 +25,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import "./MapPage.css";
 
 export default function MapPage() {
+  const mapRef = useRef<Map>();
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<GeocodedFeature>();
   const [cells, setCells] = useState<GeoJSON.FeatureCollection>({
@@ -110,6 +117,30 @@ export default function MapPage() {
     };
   }
 
+  function onMapIdle(evt: MapboxEvent) {
+    const ref = mapRef.current;
+    if (!ref) return;
+
+    const canvas = ref.getMap().getCanvas();
+
+    const w = canvas.width;
+    const h = canvas.height;
+    const cUL = ref.unproject([0, 0]).toArray();
+    const cUR = ref.unproject([w, 0]).toArray();
+    const cLR = ref.unproject([w, h]).toArray();
+    const cLL = ref.unproject([0, h]).toArray();
+
+    console.log(cUL, cUR, cLR, cLL);
+
+    /*
+    var polygon = {
+      type: "Polygon",
+      coordinates: [[cUL, cUR, cLR, cLL, cUL]],
+      crs: { type: "name", properties: { name: "EPSG:4326" } },
+    };
+    */
+  }
+
   async function onFeaturesUpdated() {
     const features: GeoJSON.Feature[] = await Promise.all(
       Object.keys(geocodedFeatures).map(toFeature)
@@ -128,15 +159,15 @@ export default function MapPage() {
   return (
     <div className="map-page flex-fill">
       <Map
-        reuseMaps
         initialViewState={{
           longitude: -47.8828,
           latitude: -15.79407,
           zoom: 14,
         }}
+        ref={mapRef}
         mapStyle="mapbox://styles/mapbox/streets-v12"
         mapboxAccessToken="pk.eyJ1IjoiZmxvdXphcyIsImEiOiJjanh0OHJqcDUwczMwM2huNXVyY3BsMW93In0.tF1mUbJU49VZdnVTaLFIUw"
-        
+        onIdle={onMapIdle}
       >
         <Source id="cells" type="geojson" data={cells}>
           <Layer
