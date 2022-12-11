@@ -18,7 +18,7 @@ abstract contract GeoCellRegistry {
 
     struct GeoCellNode {
         uint256 propId;
-        bool[4] cells;
+        uint64[4] childrenCount;
         mapping(uint8 => GeoCellNode) children;
     }
 
@@ -73,6 +73,7 @@ abstract contract GeoCellRegistry {
                 _cellData
             );
 
+            uint8 cellsClaimed = 0;
             uint256 pos = ((prefixBits - 1) / 8) + 2;
             while (pos < _cellData.length) {
                 uint8 blockLen = uint8(_cellData[pos]);
@@ -84,13 +85,38 @@ abstract contract GeoCellRegistry {
                 );
 
                 _claimCell(_propId, commonNode, pos, blockLen, 0, _cellData);
+                cellsClaimed += 1;
                 pos += ((blockLen - 1) / 8) + 1;
             }
+
+            _updateParentRegisteredCount(prefixBits, _cellData, cellsClaimed);
+        }
+    }
+
+    function _updateParentRegisteredCount(
+        uint8 prefixBits,
+        bytes memory _cellData,
+        uint8 cellsClaimed
+    ) internal {
+        uint8 faceId = (uint8(_cellData[1]) >> 4) & 0x7;
+        GeoCellNode storage commonNode = _registeredLand[faceId]; // set commonNode to face cell
+
+        for (uint8 bit = 4; bit < prefixBits; bit += 2) {
+            uint8 quadKey = _getQuadKey(_cellData, 1, bit);
+
+            commonNode.childrenCount[quadKey] += cellsClaimed;
+            commonNode = commonNode.children[quadKey];
+
+            require(
+                commonNode.propId == 0,
+                "Registro dentro de area ja registrada"
+            );
         }
     }
 
     function _getCommonNode(uint8 prefixBits, bytes memory _cellData)
         internal
+        view
         returns (GeoCellNode storage)
     {
         uint8 faceId = (uint8(_cellData[1]) >> 4) & 0x7;
@@ -100,14 +126,7 @@ abstract contract GeoCellRegistry {
         for (uint8 bit = 4; bit < prefixBits; bit += 2) {
             uint8 quadKey = _getQuadKey(_cellData, 1, bit);
 
-            if (commonNode.cells[quadKey]) {
-                // mapping for this quadKey already exists
-                commonNode = commonNode.children[quadKey];
-            } else {
-                // mapping for this quadKey does not yet exist, so create it
-                commonNode.cells[quadKey] = true;
-                commonNode = commonNode.children[quadKey];
-            }
+            commonNode = commonNode.children[quadKey];
 
             require(
                 commonNode.propId == 0,
@@ -142,14 +161,8 @@ abstract contract GeoCellRegistry {
         for (uint8 bit = _offset; bit < _blockLen; bit += 2) {
             uint8 quadKey = _getQuadKey(_cellData, _pos, bit);
 
-            if (currentNode.cells[quadKey]) {
-                // mapping for this quadKey already exists
-                currentNode = currentNode.children[quadKey];
-            } else {
-                // mapping for this quadKey does not yet exist, so create it
-                currentNode.cells[quadKey] = true;
-                currentNode = currentNode.children[quadKey];
-            }
+            currentNode.childrenCount[quadKey] += 1;
+            currentNode = currentNode.children[quadKey];
 
             require(
                 currentNode.propId == 0,
@@ -160,7 +173,7 @@ abstract contract GeoCellRegistry {
         // currentNode can be registered if no children nodes exist
         for (uint8 quadKey = 0; quadKey < 4; quadKey++) {
             require(
-                currentNode.cells[quadKey] == false,
+                currentNode.childrenCount[quadKey] == 0,
                 "Registro sobrepoe area registrada"
             );
         }
@@ -178,18 +191,20 @@ abstract contract GeoCellRegistry {
                 (6 - (_bitOffset % 8))) & 0x3;
     }
 
-    function registeredCells(bytes memory _parentCell)
+    function registeredCellsPerQuad(bytes memory _parentCell)
         public
         view
-        returns (uint8 ret)
+        returns (uint64[] memory ret)
     {
         GeoCellNode storage currentNode = _getNode(_parentCell);
-        bool[4] memory cells = currentNode.cells;
-        return
-            (cells[0] ? 8 : 0) +
-            (cells[1] ? 4 : 0) +
-            (cells[2] ? 2 : 0) +
-            (cells[3] ? 1 : 0);
+        ret = new uint64[](4);
+
+        ret[0] = currentNode.childrenCount[0];
+        ret[1] = currentNode.childrenCount[1];
+        ret[2] = currentNode.childrenCount[2];
+        ret[3] = currentNode.childrenCount[3];
+
+        return ret;
     }
 
     function propertyOf(bytes memory _parentCell)
@@ -199,6 +214,95 @@ abstract contract GeoCellRegistry {
     {
         GeoCellNode storage currentNode = _getNode(_parentCell);
         return currentNode.propId;
+    }
+
+    function registeredCells(bytes memory _parentCell)
+        public
+        view
+        returns (uint64[] memory ret)
+    {
+        uint8 blockLen = uint8(_parentCell[0]);
+
+        uint8 faceId = (uint8(_parentCell[1]) >> 4) & 0x7;
+        GeoCellNode storage currentNode = _registeredLand[faceId];
+
+        uint64 currentNodeId = 0;
+        uint8 pos = 64;
+
+        pos -= 3;
+        currentNodeId = currentNodeId + uint64((faceId & 0x7) * 2**pos);
+
+        for (uint8 bit = 4; bit < blockLen; bit += 2) {
+            uint8 quadKey = _getQuadKey(_parentCell, 1, bit);
+            currentNode = currentNode.children[quadKey];
+
+            pos -= 2;
+            currentNodeId = currentNodeId + uint64((quadKey & 0x3) * 2**pos);
+
+            if (currentNode.propId > 0) {
+                pos -= 1;
+                currentNodeId = currentNodeId + uint64((1 & 0x1) * 2**pos);
+
+                ret = new uint64[](1);
+                ret[0] = currentNodeId;
+                return ret;
+            }
+        }
+
+        // nenhuma das celulas superiores estão registradas. Necessário verificar celulas filhas
+
+        uint64 totalCells = 0;
+        for (uint8 idx = 0; idx < 4; idx++) {
+            totalCells += currentNode.childrenCount[idx];
+        }
+
+        if (totalCells == 0) {
+            ret = new uint64[](0);
+            return ret;
+        }
+
+        ret = new uint64[](totalCells);
+        _addAllCells(currentNode, currentNodeId, pos, 0, ret);
+
+        return ret;
+    }
+
+    function _addAllCells(
+        GeoCellNode storage _node,
+        uint64 _currentNodeId,
+        uint8 _pos,
+        uint64 _startIdx,
+        uint64[] memory ret
+    ) internal view returns (uint64) {
+        uint64 localIdx = 0;
+
+        for (uint8 idx = 0; idx < 4; idx++) {
+            if (_node.childrenCount[idx] > 0) {
+                GeoCellNode storage childNode = _node.children[idx];
+
+                uint64 currentNodeId = _currentNodeId +
+                    uint64((idx & 0x3) * 2**(_pos - 2));
+
+                if (childNode.propId > 0) {
+                    currentNodeId =
+                        currentNodeId +
+                        uint64((1 & 0x1) * 2**(_pos - 3));
+
+                    ret[_startIdx + localIdx] = currentNodeId;
+                    localIdx++;
+                } else {
+                    localIdx += _addAllCells(
+                        childNode,
+                        currentNodeId,
+                        _pos - 2,
+                        _startIdx + localIdx,
+                        ret
+                    );
+                }
+            }
+        }
+
+        return localIdx;
     }
 
     function _getNode(bytes memory _cell)

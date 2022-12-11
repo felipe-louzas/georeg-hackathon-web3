@@ -84,6 +84,52 @@ contract("ImovelRegistry", (accounts) => {
         const balance = await instance.balanceOf.call(accounts[0]);
         assert.equal(balance, 2, "saldo da conta != 2 após mint");
     });
+
+    it("retorna lista de celulas registradas acima da solicitada", async () => {
+        const instance = await ImovelRegistry.deployed();
+
+        const registeredCell = await instance.registeredCells.call(pack_cell("89c2598ca85"));
+        const cellId = BigInt(registeredCell[0]).toString(16).replace(/0+$/, "");
+
+        assert.equal(registeredCell.length, 1, "não retornou celula pai registrada");
+        assert.equal(cellId, "89c2598ca9", "não retornou id correto da celula pai registrada");
+    });
+
+    it("retorna lista de celulas registradas dentro da area solicitada", async () => {
+        const instance = await ImovelRegistry.deployed();
+
+        const registeredCells = await instance.registeredCells.call(pack_cell("89c2598"));
+
+        const cellIds = registeredCells.map(c => BigInt(c).toString(16).replace(/0+$/, ""));
+
+        assert.equal(registeredCells.length, 26, "não retornou todas celulas filhas");
+        assert.equal(cellIds.includes("89c2598c99"), true, "missing cell 89c2598c99");
+        assert.equal(cellIds.includes("89c2598b57c"), true, "missing cell 89c2598b57c");
+        assert.equal(cellIds.includes("89c259f356c"), true, "missing cell 89c259f356c");
+        assert.equal(cellIds.includes("89c259f4ab"), true, "missing cell 89c259f4ab");
+        assert.equal(cellIds.includes("89c2598b55"), true, "missing cell 89c2598b55");
+    });
+
+    it("retorna contagem de celulas filhas registradas", async () => {
+        const instance = await ImovelRegistry.deployed();
+
+        const totalCells = await instance.registeredCellsPerQuad.call(pack_cell("89"));
+        const totalCellsCount = BigInt(totalCells[3]);
+
+        assert.equal(totalCellsCount, 26, "contagem de celulas registradas inesperedada");
+
+        const totalCells89c2598 = await instance.registeredCellsPerQuad.call(pack_cell("89c2598"));
+
+        const q1 = BigInt(totalCells89c2598[0]);
+        const q2 = BigInt(totalCells89c2598[1]);
+        const q3 = BigInt(totalCells89c2598[2]);
+        const q4 = BigInt(totalCells89c2598[3]);
+
+        assert.equal(q1, 17, "contagem de celulas registradas inesperedada para 0x89c2598-1");
+        assert.equal(q2, 0, "contagem de celulas registradas inesperedada para 0x89c2598-2");
+        assert.equal(q3, 0, "contagem de celulas registradas inesperedada para 0x89c2598-3");
+        assert.equal(q4, 9, "contagem de celulas registradas inesperedada para 0x89c2598-4");
+    });
 });
 
 
