@@ -49,15 +49,14 @@ contract ImovelRegistry is
         _unpause();
     }
 
-    function claim(
+    function claimLand(
         address _for,
         string memory _metaUri,
-        string memory _commonCellPrefix,
-        string[] memory _cellIds
+        bytes memory _cellData
     ) public onlyRole(MINTER_ROLE) {
         _propIdCounter.increment(); // first valid property id starts with 1
         uint256 propId = _propIdCounter.current();
-        _claimCells(propId, _commonCellPrefix, _cellIds);
+        _claimLand(propId, _cellData);
         _safeMint(_for, propId);
         _setTokenURI(propId, _metaUri);
     }

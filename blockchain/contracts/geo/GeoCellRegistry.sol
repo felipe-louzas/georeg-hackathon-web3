@@ -85,13 +85,14 @@ abstract contract GeoCellRegistry {
                 commonNode = commonNode.children[quadKey];
             } else {
                 // mapping for this quadKey does not yet exist, so create it
-                GeoCellNode storage newNode = GeoCellNode();
-                commonNode.children[quadKey] = newNode;
                 commonNode.cells[quadKey] = true;
-                commonNode = newNode;
+                commonNode = commonNode.children[quadKey];
             }
 
-            require(commonNode.propId == 0, "Area ja registrada");
+            require(
+                commonNode.propId == 0,
+                "Registro dentro de area ja registrada"
+            );
         }
 
         return commonNode;
@@ -99,26 +100,39 @@ abstract contract GeoCellRegistry {
 
     function _claimCell(
         uint256 _propId,
-        GeoCellNode memory commonNode,
-        uint8 blockLen,
-        uint64 cellId
+        GeoCellNode storage _commonNode,
+        uint8 _blockLen,
+        uint64 _cellId
     ) internal {
-        for (uint8 idx = 0; idx < blockLen; idx += 2) {
-            uint8 quadKey = (cellId >> (blockLen - idx - 2)) & 0x3;
+        GeoCellNode storage currentNode = _commonNode;
 
-            if (commonNode.cells[quadKey]) {
+        for (uint8 idx = 0; idx < _blockLen; idx += 2) {
+            uint8 quadKey = uint8((_cellId >> (_blockLen - idx - 2)) & 0x3);
+
+            if (currentNode.cells[quadKey]) {
                 // mapping for this quadKey already exists
-                commonNode = commonNode.children[quadKey];
+                currentNode = currentNode.children[quadKey];
             } else {
                 // mapping for this quadKey does not yet exist, so create it
-                GeoCellNode memory newNode = new GeoCellNode();
-                commonNode.children[quadKey] = newNode;
-                commonNode.cells[quadKey] = true;
-                commonNode = newNode;
+                currentNode.cells[quadKey] = true;
+                currentNode = currentNode.children[quadKey];
             }
 
-            require(commonNode.propId == 0, "Area ja registrada");
+            require(
+                currentNode.propId == 0,
+                "Registro dentro de area ja registrada"
+            );
         }
+
+        // currentNode can be registered if no children nodes exist
+        for (uint8 quadKey = 0; quadKey < 3; quadKey++) {
+            require(
+                currentNode.cells[quadKey] == false,
+                "Registro sobrepoe area registrada"
+            );
+        }
+
+        currentNode.propId = _propId;
     }
 
     function _read8(
@@ -134,9 +148,9 @@ abstract contract GeoCellRegistry {
         bytes1 b1 = _data[_start / 8];
         bytes1 b2 = _data[(_start + _len - 1) / 8];
 
-        uint16 frame = uint16((b1 << 8) + b2);
+        uint16 frame = uint16((uint8(b1) << 8) + uint8(b2));
 
-        uint8 discard_upper = _start % 8;
+        uint8 discard_upper = uint8(_start % 8);
         uint8 discard_lower = 16 - discard_upper;
 
         frame = frame << discard_upper;
@@ -156,11 +170,11 @@ abstract contract GeoCellRegistry {
         if (_len == 0) return 0;
 
         uint72 frame = 0;
-        for (uint8 idx = _start / 8; idx <= (_start + _len - 1) / 8; idx++) {
-            frame = (frame << 8) | _data[idx];
+        for (uint256 idx = _start / 8; idx <= (_start + _len - 1) / 8; idx++) {
+            frame = (frame << 8) | uint8(_data[idx]);
         }
 
-        uint8 discard_upper = _start % 8;
+        uint8 discard_upper = uint8(_start % 8);
         uint8 discard_lower = 64 - discard_upper;
 
         frame = frame << discard_upper;
