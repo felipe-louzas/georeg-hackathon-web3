@@ -1,0 +1,125 @@
+{
+  "contractName": "Documento",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}],\"devdoc\":{\"author\":\"Felipe Louzas\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Representa um documento associado a um im\\u00f3vel.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/imovel/Documento.sol\":\"Documento\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/imovel/Documento.sol\":{\"keccak256\":\"0x408ea04378c4ad5630a346e17c58b454c1236f372fe909f1a0d9a5c2f0a0ead0\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1ddcb04c2da4c229c863c8b78bbd57e73303d49adf8c2ff2b6d874d53e2b3ddd\",\"dweb:/ipfs/QmNrtrce5GZWtQuURGCtcNYu8sta17R2aDAiv7CwbfDskt\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220b477ef5f0ef04dec9e3531b0f92ad2b70d6994687064ca227901843c23115b2664736f6c63430008110033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220b477ef5f0ef04dec9e3531b0f92ad2b70d6994687064ca227901843c23115b2664736f6c63430008110033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "158:43:19:-:0;;;183:16;;;;;;;;;;158:43;;;;;;",
+  "deployedSourceMap": "158:43:19:-:0;;;;;",
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity >=0.4.22 <0.9.0;\n\n/**\n * @author Felipe Louzas\n * @notice Representa um documento associado a um imóvel.\n */\ncontract Documento {\n    constructor() {}\n}\n",
+  "sourcePath": "E:\\Desktop\\devel\\workspaces\\georeg\\georeg-hackathon-web3\\blockchain\\contracts\\imovel\\Documento.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/imovel/Documento.sol",
+    "exportedSymbols": {
+      "Documento": [
+        3952
+      ]
+    },
+    "id": 3953,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 3946,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.4",
+          ".22",
+          "<",
+          "0.9",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:32:19"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "Documento",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 3947,
+          "nodeType": "StructuredDocumentation",
+          "src": "66:91:19",
+          "text": " @author Felipe Louzas\n @notice Representa um documento associado a um imóvel."
+        },
+        "fullyImplemented": true,
+        "id": 3952,
+        "linearizedBaseContracts": [
+          3952
+        ],
+        "name": "Documento",
+        "nameLocation": "167:9:19",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": {
+              "id": 3950,
+              "nodeType": "Block",
+              "src": "197:2:19",
+              "statements": []
+            },
+            "id": 3951,
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3948,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "194:2:19"
+            },
+            "returnParameters": {
+              "id": 3949,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "197:0:19"
+            },
+            "scope": 3952,
+            "src": "183:16:19",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "public"
+          }
+        ],
+        "scope": 3953,
+        "src": "158:43:19",
+        "usedErrors": []
+      }
+    ],
+    "src": "32:170:19"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.17+commit.8df45f5f.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.11",
+  "updatedAt": "2022-12-10T13:48:59.448Z",
+  "devdoc": {
+    "author": "Felipe Louzas",
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "notice": "Representa um documento associado a um imóvel.",
+    "version": 1
+  }
+}
