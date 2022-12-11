@@ -21,7 +21,8 @@
   },
   "workspaces": [
     "backend",
-    "frontend"
+    "frontend",
+    "blockchain"
   ],
   "devDependencies": {
     "concurrently": "^7.6.0",
