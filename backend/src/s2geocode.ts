@@ -18,7 +18,7 @@ function handlePost(req: Request, res: Response) {
   const covering = s2.RegionCoverer.getCovering(s2LLs, {
     min: 0,
     max: 24,
-    max_cells: 1000,
+    max_cells: 300,
   });
 
   if (!covering) {

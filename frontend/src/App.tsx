@@ -6,6 +6,7 @@ import MapPage from "./components/map/MapPage";
 import AppBar from "./AppBar";
 import { CeloProvider, Alfajores, NetworkNames } from "@celo/react-celo";
 import "@celo/react-celo/lib/styles.css";
+import { ToastContainer } from "react-toastify";
 
 import "./App.css";
 
@@ -29,6 +30,18 @@ export default function App() {
         <Suspense fallback={<Loader />}>
           <AppBar />
           <MapPage />
+          <ToastContainer
+            position="top-center"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
         </Suspense>
       </ErrorBoundary>
     </CeloProvider>

@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import Loader from "../Loader";
 import { useCelo } from "@celo/react-celo";
-import { GeocodedFeature } from "../../services/geocoding";
-import { Contract } from "ethers";
+import { CeloContract } from "@celo/contractkit";
+import { AbiItem } from "web3-utils";
+import { GeocodedFeature, packCellData } from "../../services/geocoding";
 import ImovelRegistry from "../../web3/types/ImovelRegistry.json";
+import { toast } from "react-toastify";
 
 import "./DetailPanel.css";
 
@@ -33,23 +35,39 @@ export default function DetailPanel(props: Props) {
 }
 
 function FeatureDetails(props: { feature: GeocodedFeature }) {
+  const [registering, setRegistering] = useState(false);
   const { address, kit } = useCelo();
 
-  function onRegisterClick() {
-    const stableToken = new Contract(
-      "0xE6dE4daff89851E371506ee49148e55a2D1266F9",
-      abi,
-      wallet
-    );
+  async function onRegisterClick() {
+    setRegistering(true);
+    try {
+      const imovelRegistry = new kit.connection.web3.eth.Contract(
+        ImovelRegistry.abi as AbiItem[],
+        "0xE6dE4daff89851E371506ee49148e55a2D1266F9"
+      );
 
-    const counter = new Contract(
-      "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      ImovelRegistry.abi,
-      provider?.getSigner()
-    ) as Counter;
+      //console.log(props.feature.tokens);
+      //console.log(packCellData(props.feature.tokens));
 
-    kit.contracts.connection.sendTransaction();
-    return false;
+      const tx = await imovelRegistry.methods
+        .claimLand(address, "", packCellData(props.feature.tokens))
+        .send({ from: address, gas: 20000000 });
+
+      console.log(tx);
+
+      toast.success("Imóvel registrado com sucesso!");
+    } catch (ex: any) {
+      console.error("Houve um erro ao registrar imovel", ex);
+
+      toast.error(
+        <div>
+          <h6>Houve um erro ao registrar o imóvel!</h6>
+          <small className="text-error">Verifique a transação!</small>
+        </div>
+      );
+    } finally {
+      setRegistering(false);
+    }
   }
 
   return (
@@ -94,10 +112,21 @@ function FeatureDetails(props: { feature: GeocodedFeature }) {
         <button
           type="submit"
           className="btn btn-primary"
-          disabled={!address}
+          disabled={!address || registering}
           onClick={onRegisterClick}
         >
-          Registrar
+          {registering ? (
+            <>
+              <span>Registrando...</span>{" "}
+              <span
+                className="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
+            </>
+          ) : (
+            <span>Registrar</span>
+          )}
         </button>
       </div>
     </form>

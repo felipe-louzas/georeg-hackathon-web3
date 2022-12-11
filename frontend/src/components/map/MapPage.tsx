@@ -136,6 +136,7 @@ export default function MapPage() {
         }}
         mapStyle="mapbox://styles/mapbox/streets-v12"
         mapboxAccessToken="pk.eyJ1IjoiZmxvdXphcyIsImEiOiJjanh0OHJqcDUwczMwM2huNXVyY3BsMW93In0.tF1mUbJU49VZdnVTaLFIUw"
+        
       >
         <Source id="cells" type="geojson" data={cells}>
           <Layer
