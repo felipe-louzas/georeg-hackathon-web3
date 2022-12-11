@@ -26,12 +26,15 @@ function handlePost(req: Request, res: Response) {
     return;
   }
 
+  const polyLine = new s2.Polyline(s2LLs);
   const cells = getMultiPolyForCells(covering.cellIds());
 
   res.json({
     tokens: covering.tokens(),
     cells: cells,
     poly: geometry,
+    lat: polyLine.getCentroid().latitude(),
+    lng: polyLine.getCentroid().longitude(),
   });
 }
 

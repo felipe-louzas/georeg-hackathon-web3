@@ -16,7 +16,7 @@
   "homepage": "https://github.com/felipe-louzas/georeg-hackathon-web3#readme",
   "scripts": {
     "start:backend": "cd backend && yarn start",
-    "start:frontend": "cd frontend && react-scripts start",
+    "start:frontend": "cd frontend && yarn start",
     "start": "concurrently yarn:start:*"
   },
   "workspaces": [

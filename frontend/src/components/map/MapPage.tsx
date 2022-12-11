@@ -126,7 +126,7 @@ export default function MapPage() {
    */
 
   return (
-    <div className="map-page">
+    <div className="map-page flex-fill">
       <Map
         reuseMaps
         initialViewState={{

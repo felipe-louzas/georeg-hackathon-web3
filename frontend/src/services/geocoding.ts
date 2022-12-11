@@ -2,6 +2,8 @@ export type GeocodedFeature = {
   tokens: string[];
   cells: GeoJSON.MultiPolygon;
   poly: GeoJSON.Polygon;
+  lat: string;
+  lng: string;
 };
 
 export async function geocode(
