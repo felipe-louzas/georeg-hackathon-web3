@@ -1,0 +1,116 @@
+{
+  "contractName": "DocumentRegistry",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"author\":\"Felipe Louzas\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Implementa registro de documentos associados a im\\u00f3veis.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/doc/DocumentRegistry.sol\":\"DocumentRegistry\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/doc/DocumentRegistry.sol\":{\"keccak256\":\"0xffb69c67ec361040c7c879e84fd0e9967d1f8287a8821a85a6b43664bd6fbe8a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://313a73d133e7bd963bae84a98a4560ec1ee6b7d27be0fc4674c95ff447bcf8e3\",\"dweb:/ipfs/QmS3xKNQV1MPVstuTrmWS1N6yeFAuUYUj8rTjJ9g86DKAk\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.9;\n\n/**\n * @author Felipe Louzas\n * @notice Implementa registro de documentos associados a imóveis.\n */\nabstract contract DocumentRegistry {\n    constructor() {}\n}\n",
+  "sourcePath": "E:\\Desktop\\devel\\workspaces\\georeg\\georeg-hackathon-web3\\blockchain\\contracts\\doc\\DocumentRegistry.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/doc/DocumentRegistry.sol",
+    "exportedSymbols": {
+      "DocumentRegistry": [
+        3449
+      ]
+    },
+    "id": 3450,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 3443,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".9"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "32:23:16"
+      },
+      {
+        "abstract": true,
+        "baseContracts": [],
+        "canonicalName": "DocumentRegistry",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 3444,
+          "nodeType": "StructuredDocumentation",
+          "src": "57:100:16",
+          "text": " @author Felipe Louzas\n @notice Implementa registro de documentos associados a imóveis."
+        },
+        "fullyImplemented": true,
+        "id": 3449,
+        "linearizedBaseContracts": [
+          3449
+        ],
+        "name": "DocumentRegistry",
+        "nameLocation": "176:16:16",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": {
+              "id": 3447,
+              "nodeType": "Block",
+              "src": "213:2:16",
+              "statements": []
+            },
+            "id": 3448,
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3445,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "210:2:16"
+            },
+            "returnParameters": {
+              "id": 3446,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "213:0:16"
+            },
+            "scope": 3449,
+            "src": "199:16:16",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 3450,
+        "src": "158:59:16",
+        "usedErrors": []
+      }
+    ],
+    "src": "32:186:16"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.17+commit.8df45f5f.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.11",
+  "updatedAt": "2022-12-11T14:26:22.759Z",
+  "devdoc": {
+    "author": "Felipe Louzas",
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "notice": "Implementa registro de documentos associados a imóveis.",
+    "version": 1
+  }
+}
