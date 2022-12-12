@@ -6,6 +6,12 @@ export type GeocodedFeature = {
   lng: string;
 };
 
+export type GeocodedAreaResposne = {
+  tokenId: string;
+  level: number;
+  quadTree: GeoJSON.Polygon[];
+};
+
 export async function geocode(
   geometry: GeoJSON.Geometry
 ): Promise<GeocodedFeature> {
@@ -17,6 +23,40 @@ export async function geocode(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(geometry),
+    }
+  );
+  const json = await resp.json();
+  return json;
+}
+
+export async function geocodeArea(
+  bounds: number[][]
+): Promise<GeocodedAreaResposne> {
+  const resp = await fetch(
+    `https://${process.env.REACT_APP_BACKEND_HOST}/geocodeArea`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bounds),
+    }
+  );
+  const json = await resp.json();
+  return json;
+}
+
+export async function getMultipolyForCells(
+  cells: string[]
+): Promise<GeoJSON.MultiPolygon> {
+  const resp = await fetch(
+    `https://${process.env.REACT_APP_BACKEND_HOST}/drawCells`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(cells),
     }
   );
   const json = await resp.json();
@@ -102,6 +142,39 @@ export function packCellData(tokenIds: string[]) {
         )
       );
     }
+  }
+
+  return "0x" + _toHexString(output);
+}
+
+export function packCell(tokenId: string) {
+  let cellInt = BigInt("0x" + tokenId.padEnd(16, "0"));
+
+  // trim lsb zeros
+  let trimmed = BigInt(0);
+  while ((cellInt & BigInt(3)) === BigInt(0)) {
+    cellInt = cellInt >> BigInt(2);
+    trimmed += BigInt(2);
+  }
+
+  // trim last bit
+  cellInt = cellInt >> BigInt(1);
+
+  const cellLen = BigInt(65) - trimmed - BigInt(1);
+
+  const output = [];
+
+  output.push(Number(cellLen) & 0x00ff);
+
+  for (let idx = BigInt(0); idx < cellLen; idx += BigInt(8)) {
+    const align =
+      cellLen - idx < BigInt(8) ? BigInt(8) - (cellLen - idx) : BigInt(0);
+    output.push(
+      Number(
+        ((cellInt >> (cellLen - BigInt(8) - idx + align)) << align) &
+          BigInt(0x00ff)
+      )
+    );
   }
 
   return "0x" + _toHexString(output);

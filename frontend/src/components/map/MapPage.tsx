@@ -1,4 +1,7 @@
 import React, { useState, useRef } from "react";
+import { useCelo } from "@celo/react-celo";
+import { AbiItem } from "web3-utils";
+import ImovelRegistry from "../../web3/types/ImovelRegistry.json";
 
 import Map, {
   NavigationControl,
@@ -18,14 +21,24 @@ import {
 import DrawControl from "./DrawControl";
 import DetailPanel from "./DetailPanel";
 
-import { GeocodedFeature, geocode } from "../../services/geocoding";
-import { geocodedFeatures } from "../../store/state";
+import {
+  GeocodedFeature,
+  geocode,
+  geocodeArea,
+  packCell,
+  getMultipolyForCells,
+} from "../../services/geocoding";
+import { geocodedFeatures, state } from "../../store/state";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./MapPage.css";
 
+let lastMappedToken: string;
+let mapping = false;
+
 export default function MapPage() {
-  const mapRef = useRef<Map>();
+  const mapRef = useRef<MapRef>(null);
+  const { kit } = useCelo();
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<GeocodedFeature>();
   const [cells, setCells] = useState<GeoJSON.FeatureCollection>({
@@ -117,34 +130,62 @@ export default function MapPage() {
     };
   }
 
-  function onMapIdle(evt: MapboxEvent) {
+  async function onMapIdle(evt: MapboxEvent) {
     const ref = mapRef.current;
     if (!ref) return;
 
-    const canvas = ref.getMap().getCanvas();
+    if (mapping) return;
+    mapping = true;
 
-    const w = canvas.width;
-    const h = canvas.height;
-    const cUL = ref.unproject([0, 0]).toArray();
-    const cUR = ref.unproject([w, 0]).toArray();
-    const cLR = ref.unproject([w, h]).toArray();
-    const cLL = ref.unproject([0, h]).toArray();
+    try {
+      const canvas = ref.getMap().getCanvas();
 
-    console.log(cUL, cUR, cLR, cLL);
+      const w = canvas.width;
+      const h = canvas.height;
+      const cUL = ref.unproject([0, 0]).toArray();
+      const cUR = ref.unproject([w, 0]).toArray();
+      const cLR = ref.unproject([w, h]).toArray();
+      const cLL = ref.unproject([0, h]).toArray();
 
-    /*
-    var polygon = {
-      type: "Polygon",
-      coordinates: [[cUL, cUR, cLR, cLL, cUL]],
-      crs: { type: "name", properties: { name: "EPSG:4326" } },
-    };
-    */
+      const resp = await geocodeArea([cUL, cUR, cLR, cLL]);
+      if (resp.tokenId === lastMappedToken) return;
+
+      const imovelRegistry = new kit.connection.web3.eth.Contract(
+        ImovelRegistry.abi as AbiItem[],
+        "0xE6dE4daff89851E371506ee49148e55a2D1266F9"
+      );
+
+      const ret: string[] = await imovelRegistry.methods
+        .registeredCells(packCell(resp.tokenId))
+        .call();
+
+      if (!ret) return;
+
+      const cellIds = ret.map((c) => BigInt(c).toString(16).replace(/0+$/, ""));
+
+      const multipoly = await getMultipolyForCells(cellIds);
+      state.registeredFeatures = multipoly;
+      lastMappedToken = resp.tokenId;
+      await onFeaturesUpdated();
+    } finally {
+      mapping = false;
+    }
   }
 
   async function onFeaturesUpdated() {
     const features: GeoJSON.Feature[] = await Promise.all(
       Object.keys(geocodedFeatures).map(toFeature)
     );
+
+    if (state.registeredFeatures) {
+      features.push({
+        type: "Feature",
+        properties: {
+          id: "reg",
+        },
+        geometry: state.registeredFeatures,
+      });
+    }
 
     setCells({
       type: "FeatureCollection",
@@ -159,12 +200,12 @@ export default function MapPage() {
   return (
     <div className="map-page flex-fill">
       <Map
+        ref={mapRef}
         initialViewState={{
           longitude: -47.8828,
           latitude: -15.79407,
           zoom: 14,
         }}
-        ref={mapRef}
         mapStyle="mapbox://styles/mapbox/streets-v12"
         mapboxAccessToken="pk.eyJ1IjoiZmxvdXphcyIsImEiOiJjanh0OHJqcDUwczMwM2huNXVyY3BsMW93In0.tF1mUbJU49VZdnVTaLFIUw"
         onIdle={onMapIdle}

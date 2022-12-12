@@ -11,7 +11,9 @@ const route = Router();
 app.use(express.json());
 app.use(cors());
 
-route.post("/geocode", s2geocode.handlePost);
+route.post("/geocode", s2geocode.geocode);
+route.post("/geocodeArea", s2geocode.geocodeArea);
+route.post("/drawCells", s2geocode.drawCells);
 
 app.use(route);
 app.listen(5000, () => "server running on port 5000");

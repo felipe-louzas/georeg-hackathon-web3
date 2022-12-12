@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Loader from "../Loader";
 import { useCelo } from "@celo/react-celo";
-import { CeloContract } from "@celo/contractkit";
 import { AbiItem } from "web3-utils";
 import { GeocodedFeature, packCellData } from "../../services/geocoding";
 import ImovelRegistry from "../../web3/types/ImovelRegistry.json";
@@ -45,9 +44,6 @@ function FeatureDetails(props: { feature: GeocodedFeature }) {
         ImovelRegistry.abi as AbiItem[],
         "0xE6dE4daff89851E371506ee49148e55a2D1266F9"
       );
-
-      //console.log(props.feature.tokens);
-      //console.log(packCellData(props.feature.tokens));
 
       const tx = await imovelRegistry.methods
         .claimLand(address, "", packCellData(props.feature.tokens))
