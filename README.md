@@ -18,7 +18,9 @@ Sendo assim, o  projeto desenvolveu uma solução, que denominaremos GeoReg, def
 
 Demonstração
 ============
-Uma demonstração deste projeto poderá ser acessando em https://v2tutq-3000.preview.csb.app/
+~Uma demonstração deste projeto poderá ser acessando em https://v2tutq-3000.preview.csb.app/~
+
+O link acima saiu fora do ar. A demonstração continua sendo acessível em: https://georeg.vercel.app/
 
 Configuração
 ============
